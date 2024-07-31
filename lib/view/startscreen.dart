@@ -35,7 +35,7 @@ class _StartscreenState extends State<Startscreen> {
                   Align(
                     alignment: Alignment.bottomLeft,
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 52.0),
+                      padding: const EdgeInsets.only(left: 10.0),
                       child: CustomButton(
                         onPressed: () {
                           setState(() {
@@ -44,7 +44,7 @@ class _StartscreenState extends State<Startscreen> {
                         },
                         text: 'Login',
                         alturaBotao: 50,
-                        larguroBotao: 100,
+                        larguroBotao: 150,
                         corTexto: Colors.black,
                         corFundo: Colors.white,
                         tamanho: 23,
@@ -54,7 +54,7 @@ class _StartscreenState extends State<Startscreen> {
                   Align(
                     alignment: Alignment.bottomRight,
                     child: Padding(
-                      padding: const EdgeInsets.only(right: 52.0),
+                      padding: const EdgeInsets.only(right: 32.0),
                       child: CustomButton(
                         onPressed: () {
                           setState(() {
@@ -63,7 +63,7 @@ class _StartscreenState extends State<Startscreen> {
                         },
                         text: 'Cadastro',
                         alturaBotao: 50,
-                        larguroBotao: 100,
+                        larguroBotao: 150,
                         corTexto: Colors.black,
                         corFundo: Colors.white,
                         tamanho: 23,
