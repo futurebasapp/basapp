@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CustomCard extends StatelessWidget {
   final double altura;
@@ -57,39 +58,48 @@ class Campo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: corDeFundo,
-      child: const TextField(),
+      child: TextField(
+        inputFormatters: [
+          FilteringTextInputFormatter.deny(RegExp(r'[^\w\s]')),
+        ],
+      ),
     );
   }
 }
 
 class CustomButton extends StatelessWidget {
-  final double alturaBotao;
-  final double larguroBotao;
-  final VoidCallback onPressed;
   final String text;
-  final Color corFundo;
-  final Color corTexto;
+  final VoidCallback onPressed;
   final double tamanho;
+  final Color corTexto;
+  final Gradient gradient;
+  final double alturaBotao;
+  final double larguraBotao;
 
   const CustomButton({
-    required this.alturaBotao,
-    required this.larguroBotao,
-    required this.onPressed,
-    required this.text,
-    required this.corFundo,
-    required this.corTexto,
-    required this.tamanho,
     super.key,
+    required this.text,
+    required this.onPressed,
+    this.tamanho = 16.0,
+    this.corTexto = Colors.white,
+    required this.gradient,
+    this.alturaBotao = 50.0,
+    this.larguraBotao = 150.0,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
+      width: larguraBotao,
       height: alturaBotao,
-      width: larguroBotao,
+      decoration: BoxDecoration(
+        gradient: gradient,
+        borderRadius: const BorderRadius.all(Radius.circular(38.0)),
+      ),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: corFundo,
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
         ),
         onPressed: onPressed,
         child: Text(

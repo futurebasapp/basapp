@@ -1,4 +1,5 @@
 import 'package:basapp/view/screens/loginScreen.dart';
+import 'package:basapp/view/screens/signupScreen.dart'; // Adicione a importação para a tela de cadastro
 import 'package:basapp/view/widgets.dart/widgets.dart';
 import 'package:flutter/material.dart';
 
@@ -11,6 +12,7 @@ class Startscreen extends StatefulWidget {
 
 class _StartscreenState extends State<Startscreen> {
   bool isLoginVisible = false;
+  bool isSignUpVisible = false;
 
   @override
   Widget build(BuildContext context) {
@@ -40,13 +42,18 @@ class _StartscreenState extends State<Startscreen> {
                         onPressed: () {
                           setState(() {
                             isLoginVisible = true;
+                            isSignUpVisible = false;
                           });
                         },
                         text: 'Login',
                         alturaBotao: 50,
-                        larguroBotao: 150,
+                        larguraBotao: 150,
                         corTexto: Colors.black,
-                        corFundo: Colors.white,
+                        gradient: const LinearGradient(
+                          begin: Alignment.topRight,
+                          end: Alignment.bottomLeft,
+                          colors: [Colors.white, Colors.white, Colors.white],
+                        ),
                         tamanho: 23,
                       ),
                     ),
@@ -59,13 +66,18 @@ class _StartscreenState extends State<Startscreen> {
                         onPressed: () {
                           setState(() {
                             isLoginVisible = false;
+                            isSignUpVisible = true;
                           });
                         },
                         text: 'Cadastro',
                         alturaBotao: 50,
-                        larguroBotao: 150,
+                        larguraBotao: 150,
                         corTexto: Colors.black,
-                        corFundo: Colors.white,
+                        gradient: const LinearGradient(
+                          begin: Alignment.topRight,
+                          end: Alignment.bottomLeft,
+                          colors: [Colors.white, Colors.white],
+                        ),
                         tamanho: 23,
                       ),
                     ),
@@ -76,8 +88,13 @@ class _StartscreenState extends State<Startscreen> {
             const Padding(padding: EdgeInsets.only(top: 30)),
             if (isLoginVisible)
               SizedBox(
-                height: MediaQuery.of(context).size.height - 400,
+                height: MediaQuery.of(context).size.height - 300,
                 child: const LoginScreen(),
+              ),
+            if (isSignUpVisible)
+              SizedBox(
+                height: MediaQuery.of(context).size.height - 300,
+                child: const Signupscreen(),
               ),
           ],
         ),
