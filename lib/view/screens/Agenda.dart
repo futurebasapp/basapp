@@ -1,18 +1,18 @@
-import 'package:basapp/view/screens/loginScreen.dart';
-import 'package:basapp/view/screens/signupScreen.dart'; // Adicione a importação para a tela de cadastro
+import 'package:basapp/view/screens/Agendados.dart';
+import 'package:basapp/view/screens/Antigos.dart';
 import 'package:basapp/view/widgets.dart/widgets.dart';
 import 'package:flutter/material.dart';
 
-class Startscreen extends StatefulWidget {
-  const Startscreen({super.key});
+class Agenda extends StatefulWidget {
+  const Agenda({super.key});
 
   @override
-  _StartscreenState createState() => _StartscreenState();
+  _Agenda createState() => _Agenda();
 }
 
-class _StartscreenState extends State<Startscreen> {
-  bool isLoginVisible = false;
-  bool isSignUpVisible = false;
+class _Agenda extends State<Agenda> {
+  bool isAgendadoVisible = false;
+  bool isAntigosVisible = false;
 
   @override
   Widget build(BuildContext context) {
@@ -21,66 +21,60 @@ class _StartscreenState extends State<Startscreen> {
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             CustomCard(
-              altura: 300,
+              altura: 100,
               largura: 400,
               gradient:
                   const LinearGradient(colors: [Colors.white, Colors.white]),
               child: Stack(
                 children: [
                   Align(
-                    alignment: Alignment.topCenter,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 88.0),
-                      child: Image.asset("asset/images/basapp.png"),
-                    ),
-                  ),
-                  Align(
                     alignment: Alignment.bottomLeft,
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 10.0),
+                      padding: const EdgeInsets.only(left: 0.0),
                       child: CustomButton(
                         onPressed: () {
                           setState(() {
-                            isLoginVisible = true;
-                            isSignUpVisible = false;
+                            isAgendadoVisible = true;
+                            isAntigosVisible = false;
                           });
                         },
-                        text: 'Login',
+                        text: 'Agendados',
                         alturaBotao: 50,
-                        larguraBotao: 150,
+                        larguraBotao: 205,
                         corTexto: Colors.black,
                         gradient: const LinearGradient(
                           begin: Alignment.topRight,
                           end: Alignment.bottomLeft,
                           colors: [Colors.white, Colors.white, Colors.white],
                         ),
-                        tamanho: 23,
+                        tamanho: 30,
                       ),
                     ),
                   ),
                   Align(
                     alignment: Alignment.bottomRight,
                     child: Padding(
-                      padding: const EdgeInsets.only(right: 32.0),
+                      padding: const EdgeInsets.only(right: 2.0),
                       child: CustomButton(
                         onPressed: () {
                           setState(() {
-                            isLoginVisible = false;
-                            isSignUpVisible = true;
+                            isAgendadoVisible = false;
+                            isAntigosVisible = true;
                           });
                         },
-                        text: 'Cadastro',
+                        text: 'Antigos',
                         alturaBotao: 50,
-                        larguraBotao: 150,
+                        larguraBotao: 205,
                         corTexto: Colors.black,
                         gradient: const LinearGradient(
                           begin: Alignment.topRight,
                           end: Alignment.bottomLeft,
                           colors: [Colors.white, Colors.white],
                         ),
-                        tamanho: 23,
+                        tamanho: 30,
                       ),
                     ),
                   ),
@@ -88,15 +82,15 @@ class _StartscreenState extends State<Startscreen> {
               ),
             ),
             const Padding(padding: EdgeInsets.only(top: 30)),
-            if (isLoginVisible)
+            if (isAgendadoVisible)
               SizedBox(
                 height: MediaQuery.of(context).size.height - 300,
-                child: const LoginScreen(),
+                child: const Agendados(),
               ),
-            if (isSignUpVisible)
+            if (isAntigosVisible)
               SizedBox(
                 height: MediaQuery.of(context).size.height - 300,
-                child: const Signupscreen(),
+                child: const Antigos(),
               ),
           ],
         ),

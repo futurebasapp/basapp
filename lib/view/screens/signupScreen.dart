@@ -14,44 +14,60 @@ class Signupscreen extends StatelessWidget {
           child: CustomCard(
             altura: 400, // Ajuste a altura conforme necessário
             largura: 400,
+            gradient:
+                const LinearGradient(colors: [Colors.white, Colors.white]),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Padding(
-                  padding: EdgeInsets.only(top: 3.0, left: 16.0),
-                  child: Texto(
-                    tamanho: 15,
-                    texto: 'Endereço de E-mail',
-                    cor: Colors.grey,
-                  ),
-                ),
+                    padding: EdgeInsets.only(top: 3.0, left: 16.0),
+                    child: Texto(
+                      gradient:
+                          LinearGradient(colors: [Colors.grey, Colors.grey]),
+                      style: TextStyle(fontSize: 12),
+                      text: 'Endereço de E-mail',
+                    )),
                 const Padding(
                   padding: EdgeInsets.only(left: 16.0),
-                  child: Campo(corDeFundo: Colors.white),
-                ),
-                const Padding(
-                  padding: EdgeInsets.only(top: 6.0, left: 16.0),
-                  child: Texto(
-                    tamanho: 15,
-                    texto: 'Número',
-                    cor: Colors.grey,
+                  child: Campo(
+                    hintText: "Endereço de E-mail",
+                    backgroundColor: Colors.white,
+                    borderRadius: 30,
                   ),
                 ),
                 const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 8.0),
-                  child: Campo(corDeFundo: Colors.white),
-                ),
+                    padding: EdgeInsets.only(top: 6.0, left: 16.0),
+                    child: Texto(
+                      gradient:
+                          LinearGradient(colors: [Colors.grey, Colors.grey]),
+                      style: TextStyle(fontSize: 12),
+                      text: 'Número',
+                    )),
                 const Padding(
-                  padding: EdgeInsets.only(top: 6.0, left: 16.0),
-                  child: Texto(
-                    tamanho: 15,
-                    texto: 'Senha',
-                    cor: Colors.grey,
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  child: Campo(
+                    hintText: "Número",
+                    backgroundColor: Colors.white,
+                    borderRadius: 30,
                   ),
                 ),
                 const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 8.0),
-                  child: Campo(corDeFundo: Colors.white),
+                    padding: EdgeInsets.only(top: 6.0, left: 16.0),
+                    child: Texto(
+                      gradient:
+                          LinearGradient(colors: [Colors.grey, Colors.grey]),
+                      style: TextStyle(fontSize: 12),
+                      text: 'Senha',
+                    )),
+                const Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  child: Campo(
+                    hintText: "Senha",
+                    backgroundColor: Colors.white,
+                    borderRadius: 30,
+                  ),
                 ),
                 const Align(
                   alignment: Alignment.centerRight,
