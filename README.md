@@ -1,5 +1,3 @@
-Aqui está uma sugestão para o seu README no GitHub:
-
 BASAPP
 
 BASAPP é um aplicativo de agendamento multilocalizado desenvolvido em Flutter, com um painel de controle em PHP e Firebase como base de dados. O projeto permite que os usuários agendem serviços de estética e saúde em diferentes locais de forma fácil e rápida, diretamente pelo app.
