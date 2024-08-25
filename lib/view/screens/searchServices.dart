@@ -1,619 +1,181 @@
-import 'package:basapp/view/screens/ServiceScreen.dart';
+import 'dart:convert';
+
+import 'package:basapp/view/screens/MakerScreen.dart';
+import 'package:basapp/view/screens/confirmCheckout.dart';
 import 'package:basapp/view/widgets.dart/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
-class Searchservices extends StatelessWidget {
-  const Searchservices({super.key});
+class SearchServicesScreen extends StatefulWidget {
+  const SearchServicesScreen({super.key});
+
+  @override
+  _SearchServicesScreenState createState() => _SearchServicesScreenState();
+}
+
+class _SearchServicesScreenState extends State<SearchServicesScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  List<dynamic> _searchResults = [];
+  bool _isMakersSelected = true;
+  Future<void> _search() async {
+    final query = _searchController.text;
+    if (query.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('O campo de pesquisa está vazio.')),
+      );
+      return;
+    }
+
+    // Define qual URL da API será chamada
+    final url = _isMakersSelected
+        ? 'https://thefuturebasapp.shop/search_makers.php?query=$query'
+        : 'https://thefuturebasapp.shop/search_services.php?query=$query';
+
+    try {
+      print("Enviando requisição para a URL: $url");
+
+      final response = await http.get(Uri.parse(url));
+
+      print("Status da resposta: ${response.statusCode}");
+      print("Corpo da resposta: ${response.body}");
+      print("Consulta enviada: $query");
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          _searchResults = data;
+        });
+
+        if (_searchResults.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Nenhum resultado encontrado.')),
+          );
+        }
+      } else {
+        throw Exception(
+            'Erro ao buscar resultados: Código ${response.statusCode}');
+      }
+    } catch (error) {
+      print("Erro ao buscar resultados: $error");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao buscar resultados: $error')),
+      );
+    }
+  }
+
+  void _onItemTap(Map<String, dynamic> result) {
+    if (_isMakersSelected) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MakerScreen(makerData: result),
+        ),
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              Confirmcheckout(makerData: result), // Novo redirecionamento
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomInset: true,
-        backgroundColor: Colors.white,
-        body: SingleChildScrollView(
-            child: Column(children: [
-          CustomCard(
-            altura: 200,
-            largura: 400,
-            gradient:
-                const LinearGradient(colors: [Colors.white, Colors.white]),
-            child: Column(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(top: 100, left: 40, right: 40),
-                  child: Campo(
-                    hintText: "Search",
-                    backgroundColor: Colors.grey,
-                    borderRadius: 30,
-                    icon: Icon(Icons.search, color: Colors.black),
-                  ),
+      appBar: AppBar(
+        title: const Text('Buscar Serviços'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: <Widget>[
+            TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                labelText: 'Pesquisar serviços...',
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: _search,
                 ),
-                Container(
-                  margin: const EdgeInsets.only(top: 10),
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFD9D9D9),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                        width: 150,
-                        height: 30,
-                        child: CustomButton(
-                          text: "Maker",
-                          onPressed: () => {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const Servicescreen()),
-                            )
-                          },
-                          gradient: const LinearGradient(
-                              colors: [Color(0xFFD9D9D9), Color(0xFFD9D9D9)]),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      SizedBox(
-                        width: 150,
-                        height: 30,
-                        child: CustomButton(
-                          text: "Services",
-                          onPressed: () => {},
-                          gradient: const LinearGradient(
-                              colors: [Color(0xFFD9D9D9), Color(0xFFD9D9D9)]),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-          //Primeira Linha
-          Container(
-            height: 155,
-            width: 400,
-            margin: const EdgeInsets.only(top: 10),
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: Row(
+            const SizedBox(height: 30),
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFD9D9D9),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    padding: const EdgeInsets.all(10),
-                    child: Column(
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.fromLTRB(1.2, 0, 7.5, 4.3),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFFFFFFF),
-                          ),
-                          child: const SizedBox(
-                            width: 148.3,
-                            height: 57.3,
-                          ),
-                        ),
-                        Container(
-                          margin: const EdgeInsets.fromLTRB(0, 0, 2.5, 3.6),
-                          child: const Texto(
-                            gradient: LinearGradient(
-                                colors: [Colors.black, Colors.black]),
-                            text: 'Serviço do Maker',
-                            style: TextStyle(fontSize: 15),
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            SizedBox(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFFFFFF),
-                                  borderRadius: BorderRadius.circular(3),
-                                ),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 5),
-                                  child: const Texto(
-                                    gradient: LinearGradient(
-                                        colors: [Colors.black, Colors.black]),
-                                    text: 'Cabelo',
-                                    style: TextStyle(fontSize: 15),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 5),
-                            SizedBox(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFFFFFF),
-                                  borderRadius: BorderRadius.circular(3),
-                                ),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 5),
-                                  child: const Texto(
-                                    gradient: LinearGradient(
-                                        colors: [Colors.black, Colors.black]),
-                                    text: 'Cabelo',
-                                    style: TextStyle(fontSize: 15),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const Padding(
-                            padding: EdgeInsets.only(top: 4, right: 50),
-                            child: Texto(
-                                text: 'Localizado em Alphaville',
-                                gradient: LinearGradient(
-                                    colors: [Colors.black, Colors.black]),
-                                style: TextStyle(fontSize: 9)))
-                      ],
-                    ),
+                SizedBox(
+                  width: 150,
+                  height: 40,
+                  child: CustomButton(
+                    text: "Maker",
+                    corTexto: Colors.black,
+                    onPressed: () {
+                      setState(() {
+                        _isMakersSelected = true;
+                      });
+                      _search();
+                    },
+                    gradient: const LinearGradient(
+                        colors: [Color(0xFFD9D9D9), Color(0xFFD9D9D9)]),
                   ),
                 ),
                 const SizedBox(width: 10),
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFD9D9D9),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    padding: const EdgeInsets.all(10),
-                    child: Column(
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.fromLTRB(1.2, 0, 7.5, 4.3),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFFFFFFF),
-                          ),
-                          child: const SizedBox(
-                            width: 148.3,
-                            height: 57.3,
-                          ),
-                        ),
-                        Container(
-                          margin: const EdgeInsets.fromLTRB(0, 0, 2.5, 3.6),
-                          child: const Texto(
-                            gradient: LinearGradient(
-                                colors: [Colors.black, Colors.black]),
-                            text: 'Serviço do Maker',
-                            style: TextStyle(fontSize: 15),
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            SizedBox(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFFFFFF),
-                                  borderRadius: BorderRadius.circular(3),
-                                ),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 5),
-                                  child: const Texto(
-                                    gradient: LinearGradient(
-                                        colors: [Colors.black, Colors.black]),
-                                    text: 'Cabelo',
-                                    style: TextStyle(fontSize: 15),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 5),
-                            SizedBox(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFFFFFF),
-                                  borderRadius: BorderRadius.circular(3),
-                                ),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 5),
-                                  child: const Texto(
-                                    gradient: LinearGradient(
-                                        colors: [Colors.black, Colors.black]),
-                                    text: 'Cabelo',
-                                    style: TextStyle(fontSize: 15),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const Padding(
-                            padding: EdgeInsets.only(top: 4, right: 50),
-                            child: Texto(
-                                text: 'Localizado em Alphaville',
-                                gradient: LinearGradient(
-                                    colors: [Colors.black, Colors.black]),
-                                style: TextStyle(fontSize: 9)))
-                      ],
-                    ),
+                SizedBox(
+                  width: 150,
+                  height: 40,
+                  child: CustomButton(
+                    text: "Services",
+                    corTexto: Colors.black,
+                    onPressed: () {
+                      setState(() {
+                        _isMakersSelected = false;
+                      });
+                      _search(); // Reexecuta a pesquisa para Services
+                    },
+                    gradient: const LinearGradient(
+                        colors: [Color(0xFFD9D9D9), Color(0xFFD9D9D9)]),
                   ),
                 ),
               ],
             ),
-          ),
-          //Segunda Linha
-          Row(children: [
+            const SizedBox(height: 20),
+            // Exibição dos resultados
             Expanded(
-              child: Container(
-                height: 155,
-                width: 400,
-                margin: const EdgeInsets.only(top: 10),
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFD9D9D9),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        padding: const EdgeInsets.all(10),
-                        child: Column(
-                          children: [
-                            Container(
-                              margin:
-                                  const EdgeInsets.fromLTRB(1.2, 0, 7.5, 4.3),
-                              decoration: const BoxDecoration(
-                                color: Color(0xFFFFFFFF),
-                              ),
-                              child: const SizedBox(
-                                width: 148.3,
-                                height: 57.3,
-                              ),
+              child: _searchResults.isNotEmpty
+                  ? ListView.builder(
+                      itemCount: _searchResults.length,
+                      itemBuilder: (context, index) {
+                        final result = _searchResults[index];
+                        if (_isMakersSelected) {
+                          return InkWell(
+                            onTap: () => _onItemTap(result),
+                            child: ListTile(
+                              title: Text(result['nome']),
+                              subtitle:
+                                  Text('Categorias: ${result['categorias']}'),
+                              trailing: const Icon(Icons.arrow_forward),
                             ),
-                            Container(
-                              margin: const EdgeInsets.fromLTRB(0, 0, 2.5, 3.6),
-                              child: const Texto(
-                                gradient: LinearGradient(
-                                    colors: [Colors.black, Colors.black]),
-                                text: 'Serviço do Maker',
-                                style: TextStyle(fontSize: 15),
-                              ),
+                          );
+                        } else {
+                          return InkWell(
+                            onTap: () => _onItemTap(result),
+                            child: ListTile(
+                              title: Text(result['nome']),
+                              subtitle: Text(result['descricao']),
+                              trailing: const Icon(Icons.arrow_forward),
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                SizedBox(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFFFFFFF),
-                                      borderRadius: BorderRadius.circular(3),
-                                    ),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 5),
-                                      child: const Texto(
-                                        gradient: LinearGradient(colors: [
-                                          Colors.black,
-                                          Colors.black
-                                        ]),
-                                        text: 'Cabelo',
-                                        style: TextStyle(fontSize: 15),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 5),
-                                SizedBox(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFFFFFFF),
-                                      borderRadius: BorderRadius.circular(3),
-                                    ),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 5),
-                                      child: const Texto(
-                                        gradient: LinearGradient(colors: [
-                                          Colors.black,
-                                          Colors.black
-                                        ]),
-                                        text: 'Cabelo',
-                                        style: TextStyle(fontSize: 15),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const Padding(
-                                padding: EdgeInsets.only(top: 4, right: 50),
-                                child: Texto(
-                                    text: 'Localizado em Alphaville',
-                                    gradient: LinearGradient(
-                                        colors: [Colors.black, Colors.black]),
-                                    style: TextStyle(fontSize: 9)))
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    //Terceira linha
-                    Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFD9D9D9),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        padding: const EdgeInsets.all(10),
-                        child: Column(
-                          children: [
-                            Container(
-                              margin:
-                                  const EdgeInsets.fromLTRB(1.2, 0, 7.5, 4.3),
-                              decoration: const BoxDecoration(
-                                color: Color(0xFFFFFFFF),
-                              ),
-                              child: const SizedBox(
-                                width: 148.3,
-                                height: 57.3,
-                              ),
-                            ),
-                            Container(
-                              margin: const EdgeInsets.fromLTRB(0, 0, 2.5, 3.6),
-                              child: const Texto(
-                                gradient: LinearGradient(
-                                    colors: [Colors.black, Colors.black]),
-                                text: 'Serviço do Maker',
-                                style: TextStyle(fontSize: 15),
-                              ),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                SizedBox(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFFFFFFF),
-                                      borderRadius: BorderRadius.circular(3),
-                                    ),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 5),
-                                      child: const Texto(
-                                        gradient: LinearGradient(colors: [
-                                          Colors.black,
-                                          Colors.black
-                                        ]),
-                                        text: 'Cabelo',
-                                        style: TextStyle(fontSize: 15),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 5),
-                                SizedBox(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFFFFFFF),
-                                      borderRadius: BorderRadius.circular(3),
-                                    ),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 5),
-                                      child: const Texto(
-                                        gradient: LinearGradient(colors: [
-                                          Colors.black,
-                                          Colors.black
-                                        ]),
-                                        text: 'Cabelo',
-                                        style: TextStyle(fontSize: 15),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const Padding(
-                                padding: EdgeInsets.only(top: 4, right: 50),
-                                child: Texto(
-                                    text: 'Localizado em Alphaville',
-                                    gradient: LinearGradient(
-                                        colors: [Colors.black, Colors.black]),
-                                    style: TextStyle(fontSize: 9)))
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          ]),
-          //Terceira linha
-          Row(children: [
-            Expanded(
-                child: Container(
-              height: 155,
-              width: 400,
-              margin: const EdgeInsets.only(top: 10),
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFD9D9D9),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      padding: const EdgeInsets.all(10),
-                      child: Column(
-                        children: [
-                          Container(
-                            margin: const EdgeInsets.fromLTRB(1.2, 0, 7.5, 4.3),
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFFFFFFF),
-                            ),
-                            child: const SizedBox(
-                              width: 148.3,
-                              height: 57.3,
-                            ),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.fromLTRB(0, 0, 2.5, 3.6),
-                            child: const Texto(
-                              gradient: LinearGradient(
-                                  colors: [Colors.black, Colors.black]),
-                              text: 'Serviço do Maker',
-                              style: TextStyle(fontSize: 15),
-                            ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              SizedBox(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFFFFFF),
-                                    borderRadius: BorderRadius.circular(3),
-                                  ),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 5),
-                                    child: const Texto(
-                                      gradient: LinearGradient(
-                                          colors: [Colors.black, Colors.black]),
-                                      text: 'Cabelo',
-                                      style: TextStyle(fontSize: 15),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 5),
-                              SizedBox(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFFFFFF),
-                                    borderRadius: BorderRadius.circular(3),
-                                  ),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 5),
-                                    child: const Texto(
-                                      gradient: LinearGradient(
-                                          colors: [Colors.black, Colors.black]),
-                                      text: 'Cabelo',
-                                      style: TextStyle(fontSize: 15),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const Padding(
-                              padding: EdgeInsets.only(top: 4, right: 50),
-                              child: Texto(
-                                  text: 'Localizado em Alphaville',
-                                  gradient: LinearGradient(
-                                      colors: [Colors.black, Colors.black]),
-                                  style: TextStyle(fontSize: 9)))
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFD9D9D9),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      padding: const EdgeInsets.all(10),
-                      child: Column(
-                        children: [
-                          Container(
-                            margin: const EdgeInsets.fromLTRB(1.2, 0, 7.5, 4.3),
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFFFFFFF),
-                            ),
-                            child: const SizedBox(
-                              width: 148.3,
-                              height: 57.3,
-                            ),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.fromLTRB(0, 0, 2.5, 3.6),
-                            child: const Texto(
-                              gradient: LinearGradient(
-                                  colors: [Colors.black, Colors.black]),
-                              text: 'Serviço do Maker',
-                              style: TextStyle(fontSize: 15),
-                            ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              SizedBox(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFFFFFF),
-                                    borderRadius: BorderRadius.circular(3),
-                                  ),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 5),
-                                    child: const Texto(
-                                      gradient: LinearGradient(
-                                          colors: [Colors.black, Colors.black]),
-                                      text: 'Cabelo',
-                                      style: TextStyle(fontSize: 15),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 5),
-                              SizedBox(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFFFFFF),
-                                    borderRadius: BorderRadius.circular(3),
-                                  ),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 5),
-                                    child: const Texto(
-                                      gradient: LinearGradient(
-                                          colors: [Colors.black, Colors.black]),
-                                      text: 'Cabelo',
-                                      style: TextStyle(fontSize: 15),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const Padding(
-                              padding: EdgeInsets.only(top: 4, right: 50),
-                              child: Texto(
-                                  text: 'Localizado em Alphaville',
-                                  gradient: LinearGradient(
-                                      colors: [Colors.black, Colors.black]),
-                                  style: TextStyle(fontSize: 9)))
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            )),
-          ])
-        ])));
+                          );
+                        }
+                      },
+                    )
+                  : const Center(child: Text('Nenhum resultado encontrado')),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

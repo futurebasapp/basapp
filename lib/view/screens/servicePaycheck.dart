@@ -1,4 +1,3 @@
-import 'package:basapp/view/screens/confirmCheckout.dart';
 import 'package:basapp/view/screens/schedule.dart';
 import 'package:basapp/view/widgets.dart/widgets.dart';
 import 'package:flutter/material.dart';
@@ -544,14 +543,7 @@ class ServicePaycheck extends StatelessWidget {
                     gradient: const LinearGradient(
                         colors: [Colors.grey, Colors.grey]),
                     text: 'Checkout',
-                    onPressed: () => {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const Confirmcheckout(),
-                            ),
-                          )
-                        },
+                    onPressed: () => {},
                     corTexto: Colors.black)
               ],
             )

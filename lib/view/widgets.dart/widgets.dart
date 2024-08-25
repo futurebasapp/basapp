@@ -61,8 +61,9 @@ class Campo extends StatelessWidget {
   final Color backgroundColor;
   final double borderRadius;
   final List<BoxShadow> boxShadow;
-  final Icon? icon; // Ícone opcional
-
+  final Icon? icon;
+  final IconButton? suffixIcon;
+  final TextEditingController? controller;
   const Campo({
     super.key,
     required this.hintText,
@@ -78,6 +79,8 @@ class Campo extends StatelessWidget {
       ),
     ],
     this.icon,
+    this.controller,
+    this.suffixIcon,
   });
 
   @override
@@ -90,6 +93,7 @@ class Campo extends StatelessWidget {
         borderRadius: BorderRadius.circular(borderRadius),
       ),
       child: TextField(
+        controller: controller,
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: hintText,

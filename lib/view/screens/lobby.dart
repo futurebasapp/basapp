@@ -58,7 +58,7 @@ class lobby extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const Searchservices()),
+                            builder: (context) => SearchServicesScreen()),
                       )
                     },
                 gradient: const LinearGradient(
