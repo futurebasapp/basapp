@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:basapp/view/screens/MakerScreen.dart';
-import 'package:basapp/view/screens/confirmCheckout.dart';
+import 'package:basapp/view/screens/servicePaycheck.dart';
 import 'package:basapp/view/widgets.dart/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -28,8 +28,8 @@ class _SearchServicesScreenState extends State<SearchServicesScreen> {
 
     // Define qual URL da API será chamada
     final url = _isMakersSelected
-        ? 'https://thefuturebasapp.shop/search_makers.php?query=$query'
-        : 'https://thefuturebasapp.shop/search_services.php?query=$query';
+        ? 'https://thefuturebasapp.shop/api/search_makers.php?query=$query'
+        : 'https://thefuturebasapp.shop/api/search_services.php?query=$query';
 
     try {
       print("Enviando requisição para a URL: $url");
@@ -75,8 +75,7 @@ class _SearchServicesScreenState extends State<SearchServicesScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              Confirmcheckout(makerData: result), // Novo redirecionamento
+          builder: (context) => ServicePaycheck(makerData: result),
         ),
       );
     }
@@ -133,7 +132,7 @@ class _SearchServicesScreenState extends State<SearchServicesScreen> {
                       setState(() {
                         _isMakersSelected = false;
                       });
-                      _search(); // Reexecuta a pesquisa para Services
+                      _search();
                     },
                     gradient: const LinearGradient(
                         colors: [Color(0xFFD9D9D9), Color(0xFFD9D9D9)]),
@@ -142,7 +141,6 @@ class _SearchServicesScreenState extends State<SearchServicesScreen> {
               ],
             ),
             const SizedBox(height: 20),
-            // Exibição dos resultados
             Expanded(
               child: _searchResults.isNotEmpty
                   ? ListView.builder(

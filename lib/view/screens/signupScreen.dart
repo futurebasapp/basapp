@@ -22,7 +22,7 @@ class _SignupScreenState extends State<Signupscreen> {
     final senha = _senhaController.text;
 
     // URL da API PHP hospedada (ajuste conforme necessário)
-    const url = 'https://thefuturebasapp.shop/signup.php';
+    const url = 'https://thefuturebasapp.shop//api/signup.php';
 
     try {
       final response = await http.post(

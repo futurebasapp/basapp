@@ -1,18 +1,20 @@
-import 'package:basapp/view/screens/servicePaycheck.dart';
+import 'package:basapp/view/screens/confirmCheckout.dart';
 import 'package:basapp/view/widgets.dart/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class schedule extends StatefulWidget {
-  const schedule({super.key});
+class Schedule extends StatefulWidget {
+  final Map<String, dynamic> makerData;
+  const Schedule({super.key, required this.makerData});
 
   @override
   _ScheduleState createState() => _ScheduleState();
 }
 
-class _ScheduleState extends State<schedule> {
+class _ScheduleState extends State<Schedule> {
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _selectedTime = TimeOfDay.now();
+  final String _selectedPaymentMethod = 'Dinheiro';
 
   List<DateTime> generateDays(DateTime selectedDate) {
     List<DateTime> days = [];
@@ -138,7 +140,7 @@ class _ScheduleState extends State<schedule> {
                     ),
                     child: Center(
                       child: Text(
-                        time.format(context), // Formata o horário
+                        time.format(context),
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -153,19 +155,34 @@ class _ScheduleState extends State<schedule> {
           ),
           const SizedBox(height: 10),
           CustomButton(
-              corTexto: Colors.black,
-              gradient:
-                  const LinearGradient(colors: [Colors.grey, Colors.grey]),
-              text: 'Voltar',
-              onPressed: () => {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ServicePaycheck(),
-                      ),
-                    )
-                  }),
-          const SizedBox(height: 10)
+            corTexto: Colors.black,
+            gradient: const LinearGradient(colors: [Colors.grey, Colors.grey]),
+            text: 'Selecionar horário',
+            onPressed: () {
+              String formattedDate =
+                  DateFormat('dd/MM/yyyy').format(_selectedDate);
+              String formattedTime = _selectedTime.format(context);
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Confirmcheckout(
+                    makerData: {
+                      'nome': widget.makerData['nome'] ?? 'Nome padrão',
+                      'empresa':
+                          widget.makerData['empresa'] ?? 'Empresa padrão',
+                      'preco': widget.makerData['preco'] ?? 0.00,
+                      'maker_id': widget.makerData['maker_id'] ?? 'ID padrão',
+                      'forma_pagamento': _selectedPaymentMethod,
+                      'data': formattedDate,
+                      'hora': formattedTime,
+                    },
+                  ),
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 10),
         ],
       ),
     );

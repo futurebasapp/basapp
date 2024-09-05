@@ -1,9 +1,60 @@
-import 'package:basapp/view/screens/schedule.dart';
+import 'dart:convert';
+
+import 'package:basapp/view/screens/confirmCheckout.dart';
 import 'package:basapp/view/widgets.dart/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
-class ServicePaycheck extends StatelessWidget {
-  const ServicePaycheck({super.key});
+class ServicePaycheck extends StatefulWidget {
+  final Map<String, dynamic> makerData;
+  const ServicePaycheck({super.key, required this.makerData});
+
+  @override
+  _ServicePaycheckState createState() => _ServicePaycheckState();
+}
+
+class _ServicePaycheckState extends State<ServicePaycheck> {
+  String makerName = '';
+  String makerDescription = '';
+  List<dynamic> services = [];
+  double selectedPrice = 0.0;
+  String selectedPaymentMethod = 'Dinheiro'; // Default payment method
+
+  @override
+  void initState() {
+    super.initState();
+    fetchMakerData();
+  }
+
+  Future<void> fetchMakerData() async {
+    final makerId = widget.makerData['maker_id'];
+
+    if (makerId == null ||
+        !(makerId is int ||
+            makerId is String && int.tryParse(makerId) != null)) {
+      print('maker_id inválido');
+      return;
+    }
+
+    final response = await http.get(Uri.parse(
+        'https://www.thefuturebasapp.shop/api/get_services_by_maker.php?maker_id=${int.parse(makerId.toString())}'));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+
+      setState(() {
+        makerName = data['maker']['nome'];
+        makerDescription = data['maker']['descricao'];
+        services = data['services'];
+
+        final preco = data['maker']['preco'];
+        selectedPrice =
+            preco != null ? double.tryParse(preco.toString()) ?? 0.0 : 0.0;
+      });
+    } else {
+      print('Erro ao buscar dados do maker: ${response.statusCode}');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,58 +71,66 @@ class ServicePaycheck extends StatelessWidget {
             ),
             Container(
               margin: const EdgeInsets.fromLTRB(4, 0, 4, 4),
-              child: const Align(
+              child: Align(
                 alignment: Alignment.topLeft,
                 child: Texto(
-                  gradient:
-                      LinearGradient(colors: [Colors.black, Colors.black]),
-                  text: 'Tratamento para Cabelo',
-                  style: TextStyle(fontSize: 25),
+                  gradient: const LinearGradient(
+                      colors: [Colors.black, Colors.black]),
+                  text: widget.makerData['nome'] ?? 'Serviço',
+                  style: const TextStyle(fontSize: 20),
                 ),
               ),
             ),
-            const Row(
+            Row(
               children: [
-                SizedBox(width: 20),
-                Icon(
+                const SizedBox(width: 20),
+                const Icon(
                   Icons.abc,
                   color: Colors.green,
                 ),
                 Texto(
-                  gradient:
-                      LinearGradient(colors: [Colors.black, Colors.black]),
-                  text: 'Feito por AlphaVille Beauty',
-                  style: TextStyle(fontSize: 20),
+                  gradient: const LinearGradient(
+                      colors: [Colors.black, Colors.black]),
+                  text:
+                      ' Feito por  ${widget.makerData["maker_id"] ?? 'Empresa'}',
+                  style: const TextStyle(fontSize: 20),
                 ),
               ],
             ),
             const SizedBox(height: 10),
-            Row(
-              children: [
-                const SizedBox(width: 30),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: [
-                    buildTag('Cabelo'),
-                    buildTag('Cabelo'),
-                    buildTag('Cabelo'),
-                    const SizedBox(width: 20),
-                    buildTag('R\$199,99'),
-                  ],
-                ),
-              ],
-            ),
+            ...services.map((service) {
+              return Column(
+                children: [
+                  Row(
+                    children: [
+                      const SizedBox(width: 20),
+                      Texto(
+                        gradient: const LinearGradient(
+                            colors: [Colors.black, Colors.black]),
+                        text: service['nome'],
+                        style: const TextStyle(fontSize: 20),
+                      ),
+                      const SizedBox(width: 10),
+                      Texto(
+                        gradient: const LinearGradient(
+                            colors: [Colors.black, Colors.black]),
+                        text: 'R\$${selectedPrice.toStringAsFixed(2)}',
+                        style: const TextStyle(fontSize: 20),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Texto(
+                    text: service['descricao'],
+                    gradient: const LinearGradient(
+                        colors: [Colors.black, Colors.black]),
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  const SizedBox(height: 10),
+                ],
+              );
+            }),
             const SizedBox(height: 10),
-            const Row(
-              children: [
-                Texto(
-                    text: "Descrição Enorme do produto",
-                    gradient:
-                        LinearGradient(colors: [Colors.black, Colors.black]),
-                    style: TextStyle(fontSize: 20))
-              ],
-            ),
             Row(
               children: [
                 Container(
@@ -92,55 +151,20 @@ class ServicePaycheck extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           padding: const EdgeInsets.fromLTRB(5, 2, 5, 2.7),
-                          child: Row(
-                            children: [
-                              Container(
-                                margin: const EdgeInsets.fromLTRB(0, 2, 11, 0),
-                                child: const Icon(Icons.add),
-                              ),
-                              Container(
-                                margin:
-                                    const EdgeInsets.fromLTRB(0, 2, 12.1, 0),
-                                child: const Text(
-                                  '2',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 16,
-                                    color: Color(0xFF000000),
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                margin: const EdgeInsets.fromLTRB(0, 0, 0, 2),
-                                child: const Icon(Icons.remove),
-                              ),
-                            ],
-                          ),
                         ),
                         Container(
                           margin: const EdgeInsets.symmetric(horizontal: 10),
-                          child: const Text(
-                            '\$399,90',
-                            style: TextStyle(
-                              fontSize: 16,
+                          child: Texto(
+                            text:
+                                'R\$${widget.makerData['preco']?.toString() ?? '0.00'}',
+                            style: const TextStyle(
+                              fontSize: 17,
                               color: Color(0xFF000000),
                             ),
+                            gradient: const LinearGradient(
+                                colors: [Colors.black, Colors.black]),
                           ),
                         ),
-                        SizedBox(
-                            child: CustomButton(
-                                larguraBotao: 200,
-                                corTexto: Colors.black,
-                                text: "Selecione horário",
-                                onPressed: () => {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              const schedule(),
-                                        ),
-                                      )
-                                    })),
                       ],
                     ),
                   ),
@@ -157,394 +181,87 @@ class ServicePaycheck extends StatelessWidget {
                     style: TextStyle(fontSize: 20))
               ],
             ),
-            Row(children: [
-              const SizedBox(width: 32),
-              SizedBox(
-                width: 329,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.fromLTRB(0, 0, 7, 0),
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFFFFFFF),
-                            ),
-                            child: SizedBox(
-                              width: 40,
-                              height: 40,
-                              child: Container(
-                                padding:
-                                    const EdgeInsets.fromLTRB(5, 10, 5, 10),
-                                child: Stack(
-                                  clipBehavior: Clip.none,
-                                  children: [
-                                    const SizedBox(
-                                      width: 30,
-                                      height: 20,
-                                      child: SizedBox(
-                                          width: 30,
-                                          height: 20,
-                                          child: Icon(Icons.money_off)),
-                                    ),
-                                    Positioned(
-                                      bottom: -10,
-                                      child: Container(
-                                        decoration: const BoxDecoration(
-                                          color: Color(0xFFFFFFFF),
-                                        ),
-                                        child: Container(
-                                          width: 40,
-                                          height: 40,
-                                          padding: const EdgeInsets.fromLTRB(
-                                              5, 10, 5, 10),
-                                          child: const SizedBox(
-                                              width: 30,
-                                              height: 20,
-                                              child: Icon(Icons.money)),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                            margin: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-                            child: const Texto(
-                                text: "Dinheiro",
-                                gradient: LinearGradient(
-                                    colors: [Colors.black, Colors.black]),
-                                style: TextStyle(fontSize: 25))),
-                      ],
-                    ),
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFD9D9D9),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: Container(
-                            padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-                            child: Stack(
-                              clipBehavior: Clip.none,
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFFFFFF),
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-                                  child: const SizedBox(
-                                    width: 10,
-                                    height: 10,
-                                  ),
-                                ),
-                                Positioned(
-                                  bottom: -5,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFD9D9D9),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Container(
-                                      width: 20,
-                                      height: 20,
-                                      padding:
-                                          const EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFFFFFFFF),
-                                          borderRadius:
-                                              BorderRadius.circular(5),
-                                        ),
-                                        child: const SizedBox(
-                                          width: 10,
-                                          height: 10,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+            Column(
+              children: [
+                ListTile(
+                  title: const Texto(
+                    text: 'Dinheiro',
+                    gradient:
+                        LinearGradient(colors: [Colors.black, Colors.black]),
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  leading: Radio<String>(
+                    value: 'Dinheiro',
+                    groupValue: selectedPaymentMethod,
+                    onChanged: (String? value) {
+                      setState(() {
+                        selectedPaymentMethod = value!;
+                      });
+                    },
+                  ),
                 ),
-              ),
-            ]),
-            SizedBox(
-              width: 329,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.fromLTRB(0, 0, 7, 0),
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFFFFFFF),
-                          ),
-                          child: SizedBox(
-                            width: 40,
-                            height: 40,
-                            child: Container(
-                              padding: const EdgeInsets.fromLTRB(5, 10, 5, 10),
-                              child: Stack(
-                                clipBehavior: Clip.none,
-                                children: [
-                                  const SizedBox(
-                                    width: 30,
-                                    height: 20,
-                                    child: SizedBox(
-                                        width: 30,
-                                        height: 20,
-                                        child: Icon(Icons.credit_card)),
-                                  ),
-                                  Positioned(
-                                    bottom: -10,
-                                    child: Container(
-                                      decoration: const BoxDecoration(
-                                        color: Color(0xFFFFFFFF),
-                                      ),
-                                      child: Container(
-                                        width: 40,
-                                        height: 40,
-                                        padding: const EdgeInsets.fromLTRB(
-                                            5, 10, 5, 10),
-                                        child: const SizedBox(
-                                            width: 30,
-                                            height: 20,
-                                            child: Icon(Icons.credit_card)),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Container(
-                          margin: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-                          child: const Texto(
-                              text: "Cartão de Crédito",
-                              gradient: LinearGradient(
-                                  colors: [Colors.black, Colors.black]),
-                              style: TextStyle(fontSize: 25))),
-                    ],
+                ListTile(
+                  title: const Texto(
+                    text: 'Cartão de Crédito',
+                    gradient:
+                        LinearGradient(colors: [Colors.black, Colors.black]),
+                    style: TextStyle(fontSize: 20),
                   ),
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFD9D9D9),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: Container(
-                          padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-                          child: Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFFFFFF),
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                child: const SizedBox(
-                                  width: 10,
-                                  height: 10,
-                                ),
-                              ),
-                              Positioned(
-                                bottom: -5,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFD9D9D9),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Container(
-                                    width: 20,
-                                    height: 20,
-                                    padding:
-                                        const EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFFFFFFF),
-                                        borderRadius: BorderRadius.circular(5),
-                                      ),
-                                      child: const SizedBox(
-                                        width: 10,
-                                        height: 10,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                  leading: Radio<String>(
+                    value: 'Cartão de Crédito',
+                    groupValue: selectedPaymentMethod,
+                    onChanged: (String? value) {
+                      setState(() {
+                        selectedPaymentMethod = value!;
+                      });
+                    },
                   ),
-                ],
-              ),
-            ),
-            SizedBox(
-              width: 329,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.fromLTRB(0, 0, 7, 0),
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFFFFFFF),
-                          ),
-                          child: SizedBox(
-                            width: 40,
-                            height: 40,
-                            child: Container(
-                              padding: const EdgeInsets.fromLTRB(5, 10, 5, 10),
-                              child: Stack(
-                                clipBehavior: Clip.none,
-                                children: [
-                                  const SizedBox(
-                                    width: 30,
-                                    height: 20,
-                                    child: SizedBox(
-                                        width: 30,
-                                        height: 20,
-                                        child: Icon(Icons.credit_card_rounded)),
-                                  ),
-                                  Positioned(
-                                    bottom: -10,
-                                    child: Container(
-                                      decoration: const BoxDecoration(
-                                        color: Color(0xFFFFFFFF),
-                                      ),
-                                      child: Container(
-                                        width: 40,
-                                        height: 40,
-                                        padding: const EdgeInsets.fromLTRB(
-                                            5, 10, 5, 10),
-                                        child: const SizedBox(
-                                            width: 30,
-                                            height: 20,
-                                            child: Icon(
-                                                Icons.credit_card_rounded)),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Container(
-                          margin: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-                          child: const Texto(
-                              text: "Cartão de Débito",
-                              gradient: LinearGradient(
-                                  colors: [Colors.black, Colors.black]),
-                              style: TextStyle(fontSize: 25))),
-                    ],
+                ),
+                ListTile(
+                  title: const Texto(
+                    text: 'Cartão de Débito',
+                    gradient:
+                        LinearGradient(colors: [Colors.black, Colors.black]),
+                    style: TextStyle(fontSize: 20),
                   ),
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFD9D9D9),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: Container(
-                          padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-                          child: Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFFFFFF),
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                child: const SizedBox(
-                                  width: 10,
-                                  height: 10,
-                                ),
-                              ),
-                              Positioned(
-                                bottom: -5,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFD9D9D9),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Container(
-                                    width: 20,
-                                    height: 20,
-                                    padding:
-                                        const EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFFFFFFF),
-                                        borderRadius: BorderRadius.circular(5),
-                                      ),
-                                      child: const SizedBox(
-                                        width: 10,
-                                        height: 10,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                  leading: Radio<String>(
+                    value: 'Cartão de Débito',
+                    groupValue: selectedPaymentMethod,
+                    onChanged: (String? value) {
+                      setState(() {
+                        selectedPaymentMethod = value!;
+                      });
+                    },
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 CustomButton(
-                    gradient: const LinearGradient(
-                        colors: [Colors.grey, Colors.grey]),
-                    text: 'Checkout',
-                    onPressed: () => {},
-                    corTexto: Colors.black)
+                  gradient:
+                      const LinearGradient(colors: [Colors.grey, Colors.grey]),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Confirmcheckout(
+                          makerData: {
+                            'nome': widget.makerData['nome'],
+                            'empresa': widget.makerData['empresa'],
+                            'preco': widget.makerData['preco'],
+                            'id': widget.makerData['maker_id'],
+                            'forma_pagamento':
+                                selectedPaymentMethod, // Adicionado
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                  text: "Checkout",
+                ),
               ],
             )
           ],

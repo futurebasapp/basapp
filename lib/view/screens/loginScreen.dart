@@ -21,7 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final email = _emailController.text;
     final senha = _senhaController.text;
 
-    const url = 'https://thefuturebasapp.shop/login.php';
+    const url = 'https://thefuturebasapp.shop/api/login.php';
 
     try {
       final response = await http.post(
@@ -34,7 +34,6 @@ class _LoginScreenState extends State<LoginScreen> {
       final responseData = json.decode(response.body);
 
       if (responseData['status'] == 'success') {
-        // Login bem-sucedido, redireciona para 'lobby.dart'
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(

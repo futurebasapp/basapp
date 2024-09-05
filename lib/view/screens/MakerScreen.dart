@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:basapp/view/screens/servicePaycheck.dart';
 import 'package:basapp/view/widgets.dart/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -26,7 +27,7 @@ class _MakerScreenState extends State<MakerScreen> {
   Future<void> _fetchMakerServices() async {
     final makerId = widget.makerData['id'];
     final url =
-        'https://thefuturebasapp.shop/get_services_by_maker.php?maker_id=$makerId';
+        'https://thefuturebasapp.shop/api/get_services_by_maker.php?maker_id=$makerId';
 
     try {
       final response = await http.get(Uri.parse(url));
@@ -48,6 +49,15 @@ class _MakerScreenState extends State<MakerScreen> {
         SnackBar(content: Text('Erro ao buscar serviços: $error')),
       );
     }
+  }
+
+  void _onItemTap(Map<String, dynamic> result) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ServicePaycheck(makerData: result),
+      ),
+    );
   }
 
   @override
@@ -94,10 +104,13 @@ class _MakerScreenState extends State<MakerScreen> {
                               itemCount: _services.length,
                               itemBuilder: (context, index) {
                                 final service = _services[index];
-                                return ListTile(
-                                  title: Text(service['nome']),
-                                  subtitle: Text(service['descricao']),
-                                  trailing: Text('R\$ ${service['preco']}'),
+                                return InkWell(
+                                  onTap: () => _onItemTap(service),
+                                  child: ListTile(
+                                    title: Text(service['nome']),
+                                    subtitle: Text(service['descricao']),
+                                    trailing: Text('R\$ ${service['preco']}'),
+                                  ),
                                 );
                               },
                             )

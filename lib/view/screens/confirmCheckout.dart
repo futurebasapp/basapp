@@ -1,6 +1,8 @@
 import 'package:basapp/view/screens/backHomeCheckout.dart';
+import 'package:basapp/view/screens/schedule.dart';
 import 'package:basapp/view/widgets.dart/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class Confirmcheckout extends StatelessWidget {
   final Map<String, dynamic> makerData;
@@ -9,6 +11,42 @@ class Confirmcheckout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String data = makerData['data'] ?? 'Data não especificada';
+    String hora = makerData['hora'] ?? '';
+    IconData paymentIcon;
+    String paymentText;
+
+    switch (makerData['forma_pagamento']) {
+      case 'Dinheiro':
+        paymentIcon = Icons.money;
+        paymentText = 'Dinheiro';
+        break;
+      case 'Cartão de Crédito':
+        paymentIcon = Icons.credit_card;
+        paymentText = 'Cartão de Crédito';
+        break;
+      case 'Cartão de Débito':
+        paymentIcon = Icons.credit_card;
+        paymentText = 'Cartão de Débito';
+        break;
+      default:
+        paymentIcon = Icons.error;
+        paymentText = 'Forma de pagamento não especificada';
+        break;
+    }
+
+    String formattedDate;
+    try {
+      if (data != 'Data não especificada') {
+        DateTime parsedDate = DateFormat('dd/MM/yyyy').parse(data);
+        formattedDate = DateFormat('dd/MM/yyyy').format(parsedDate);
+      } else {
+        formattedDate = 'Selecionar Horário';
+      }
+    } catch (e) {
+      formattedDate = 'Data inválida';
+    }
+
     return Scaffold(
       body: Column(
         children: [
@@ -74,46 +112,65 @@ class Confirmcheckout extends StatelessWidget {
                     padding: const EdgeInsets.only(left: 20),
                     child: Row(
                       children: [
-                        Container(
-                          child: Wrap(
-                            spacing: 6,
-                            runSpacing: 6,
-                            children: [
-                              buildTag('R\$${makerData['preco'] ?? '0,00'}'),
-                            ],
-                          ),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: [
+                            Texto(
+                              text:
+                                  'R\$${makerData['preco']?.toString() ?? '0.00'}',
+                              style: const TextStyle(
+                                fontSize: 17,
+                                color: Color(0xFF000000),
+                              ),
+                              gradient: const LinearGradient(
+                                  colors: [Colors.black, Colors.black]),
+                            ),
+                          ],
                         ),
                         const SizedBox(width: 20),
-                        const Icon(Icons.money, size: 30),
+                        Icon(paymentIcon, size: 30),
                         const SizedBox(width: 10),
-                        const Texto(
-                          text: "Dinheiro",
-                          gradient: LinearGradient(
-                              colors: [Colors.black, Colors.black]),
-                          style: TextStyle(fontSize: 25),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(left: 20),
-                    child: const Row(
-                      children: [
                         Texto(
-                          text: "Dia escolhido para o agendamento",
-                          gradient: LinearGradient(
+                          text: paymentText,
+                          gradient: const LinearGradient(
                               colors: [Colors.black, Colors.black]),
-                          style: TextStyle(fontSize: 15),
+                          style: const TextStyle(fontSize: 25),
                         ),
                       ],
                     ),
                   ),
-                  //Lugar onde vai aparecer o horário do back
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: 250,
+                    height: 57,
+                    child: CustomButton(
+                      gradient: const LinearGradient(
+                          colors: [Colors.grey, Colors.grey]),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Schedule(
+                              makerData: {
+                                'nome': makerData['nome'],
+                                'empresa': makerData['empresa'],
+                                'preco': makerData['preco'],
+                                'id': makerData['maker_id'],
+                                'forma_pagamento': makerData['forma_pagamento']
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                      text: "$formattedDate $hora",
+                    ),
+                  )
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 50),
           SizedBox(
             width: 250,
             height: 80,
