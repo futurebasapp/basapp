@@ -64,6 +64,7 @@ class Campo extends StatelessWidget {
   final Icon? icon;
   final IconButton? suffixIcon;
   final TextEditingController? controller;
+
   const Campo({
     super.key,
     required this.hintText,
